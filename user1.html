@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div ><span>{{mess}}</span></div>
+        <input type="text"  v-model="msg" /><button v-on:click="send"> 发送数据到服务器</button>
+    </div>
+
+    </div>
+   
+
+      
+    <script>
+
+       var app = new  Vue({
+           el:"#app",
+          
+           data () {
+                return {
+                    path:"ws://192.168.1.104:8002",
+                    socket:"",
+                    mess:"连接服务器ing",
+                     msg:""
+                }
+            },
+            mounted () {
+                // 初始化
+                this.init()
+            },
+            methods: {
+                init: function () {
+                    if(typeof(WebSocket) === "undefined"){
+                        alert("您的浏览器不支持socket")
+                    }else{
+                        // 实例化socket
+                        this.socket = new WebSocket(this.path)
+                        // 监听socket连接
+                        this.socket.onopen = this.open
+                        // 监听socket错误信息
+                        this.socket.onerror = this.error
+                        // 监听socket消息
+                        this.socket.onmessage = this.getMessage
+                        this.mess="服务器链接成功！"
+                    }
+                },
+                open: function () {
+                    console.log("socket连接成功")
+                },
+                error: function () {
+                    console.log("连接错误")
+                },
+                getMessage: function (msg) {
+                    console.log(msg.data)
+                },
+                send: function () {
+                    this.socket.send(this.msg)
+                    this.msg="";
+                },
+                close: function () {
+                    console.log("socket已经关闭");
+                    this.mess="服务器已关闭！"
+                }
+            },
+            destroyed () {
+                // 销毁监听
+                this.socket.onclose = this.close
+            }
+       })
+    </script>
+</body>
+</html>
